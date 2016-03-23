@@ -6,9 +6,9 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
-
+var config = require('config');
 var app = express();
+var SLIB = require('./slib');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,8 +24,27 @@ app.use(bodyParser.urlencoded({
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+mongoose.connect(config.db);
+
+mongoose.connection.on('connected', function() {
+        console.log('connected to mongo db: ' + config.db);
+    })
+    .on('disconnected', function(err) {
+        console.log('disconnected');
+    })
+    .on('error', function(err) {
+        console.log('could not connect to mongo db: ', err);
+        console.error.bind(console, 'connection error:');
+    })
+    .once('open', function(callback) {
+        console.log('db opened: ', mongoose.connection.host + ':' + mongoose.connection.port);
+        var slib = new SLIB();
+    });
+
+
 app.use('/', routes);
-app.use('/users', users);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
