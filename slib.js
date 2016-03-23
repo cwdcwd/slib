@@ -1,14 +1,22 @@
 'use strict';
-var mongoose = require('mongoose');
 
+var _ = require('lodash');
+var moment = require('moment');
 
 var Botkit = require('botkit');
 var controller = Botkit.slackbot();
 
-var bot = controller.spawn({
-    token: config.SLACK_BOTTOKEN
-}).startRTM();
+var SLIB = function() {
+    this.bot = controller.spawn({
+        token: config.SLACK_BOTTOKEN
+    }).startRTM();
 
+    return {
+        getBot: function() {
+            return this.bot;
+        }
+    }
+}
 
 controller.hears(['create', 'draft'], 'direct_message,direct_mention,mention', function(bot, message) {
     bot.startConversation(message, function(err, convo) {
@@ -16,7 +24,7 @@ controller.hears(['create', 'draft'], 'direct_message,direct_mention,mention', f
             console.log(err);
         }
 
-        startProcess();
+        startProcess(message);
     });
     /*
         controller.storage.users.get(message.user,function(err, user) {
@@ -30,11 +38,26 @@ controller.hears(['create', 'draft'], 'direct_message,direct_mention,mention', f
     */
 });
 
-var startProcess = function() {
-    convo.ask("What type of Challenge would you like to create? F2F or Code?", setupChallenge);
+function startProcess(message) {
+    //CWD-- TODO: check for existing draft in user storage
+
+    var challenge = {
+        projectId: '',
+        requirements: '',
+        contestCopilotName: 'Unassigned',
+        prizes: [],
+        registrationStartDate: moment(new Date()).toISOString(),
+        reviewType: 'COMMUNITY'
+    }; //CWD-- blank challenge
+
+    updateChallenge(message.user, challenge, function(err) {
+        if (!err) {
+            convo.ask("What type of Challenge would you like to create? F2F or Code?", setupChallenge);
+        }
+    });
 };
 
-var setupChallenge = function(response, convo) {
+function setupChallenge(response, convo) {
     response = response.toLowerCase();
 
     if ((response != 'code') && (response != 'f2f')) {
@@ -42,19 +65,39 @@ var setupChallenge = function(response, convo) {
         startProcess();
     }
 
-    var challenge = {
+    updateChallenge(message.user, challenge = {
         type: response
-    };
-
-    convo.say('Great. We will build a new ' + response);
-    convo.ask("So what is the requirement", setRequirement);
-
-    convo.next();
+    }, function(err) {
+        if (err) {
+            convo.say(err);
+            startProcess();
+        } else {
+            convo.say('Great. We will build a new ' + response + ' challenge on Topcode!');
+            convo.ask("So what is the requirement", setRequirement);
+            convo.next();
+        }
+    });
 };
 
-var setRequirement = function(response, convo) {
+function setRequirement(response, convo) {
     convo.say('Great. Sounds interesting');
-
+    updateChallenge(message.user, {});
 }
 
-module.exports = bot;
+function updateChallenge(user, challenge, cb) {
+    //CWD-- TODO: fetch existing Challenge and update object through a merge
+
+    controller.storage.users.save({
+        id: message.user,
+        challenge: challenge
+    }, function(err) {
+        if (err) {
+            console.log(err);
+            cb('I am _so_ sorry but I appear to be suffering from short term memory loss. ' + err);
+        } else {
+            cb();
+        }
+    });
+}
+
+module.exports = SLIB;

@@ -14,7 +14,10 @@
         "morgan": "~1.5.1",
         "serve-favicon": "~2.2.0",
         "lodash": "latest",
+        "moment": "~2.11.2",
+        "markdown-it": "~6.0.0"
         "config": "latest",
-        "mongoose": "~4.4.9"
+        "mongoose": "~4.4.9",
+        "botkit": "~0.0.12"
     }
 }
