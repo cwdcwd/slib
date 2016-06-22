@@ -10,32 +10,32 @@ router.get('/', function(req, res, next) {
 
 router.post('/cmd', function(req, res, next) {
     res.json({
-        "text": "Would you like to play a game?",
+        "text": "Would you like to build a challenge?",
         "attachments": [{
-            "text": "Choose a game to play",
-            "fallback": "You are unable to choose a game",
+            "text": "Choose a challenge type",
+            "fallback": "You are unable to create challenges",
             "callback_id": "wopr_game",
             "color": "#3AA3E3",
             "attachment_type": "default",
             "actions": [{
-                "name": "chess",
-                "text": "Chess",
+                "name": "f2f",
+                "text": "First To Finish",
                 "type": "button",
-                "value": "chess"
+                "value": "f2f"
             }, {
-                "name": "maze",
-                "text": "Falken's Maze",
+                "name": "code",
+                "text": "Code",
                 "type": "button",
-                "value": "maze"
+                "value": "code"
             }, {
-                "name": "war",
-                "text": "Thermonuclear War",
+                "name": "prototype",
+                "text": "Prototype",
                 "style": "danger",
                 "type": "button",
-                "value": "war",
+                "value": "prototype",
                 "confirm": {
                     "title": "Are you sure?",
-                    "text": "Wouldn't you prefer a good game of chess?",
+                    "text": "Wouldn't you prefer an f2f?",
                     "ok_text": "Yes",
                     "dismiss_text": "No"
                 }
@@ -47,7 +47,7 @@ router.post('/cmd', function(req, res, next) {
 
 router.post('/slacktion', function(req, res, next) {
     res.json({
-        text: 'omg stuff. I am still a stupid bot!'
+        text: 'omg stuff. I am still a stupid bot! next step is to prompt you for challenge details!'
     });
 });
 
