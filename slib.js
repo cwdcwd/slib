@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var moment = require('moment');
+var config = require('config');
 
 var Botkit = require('botkit');
 var controller = Botkit.slackbot();
